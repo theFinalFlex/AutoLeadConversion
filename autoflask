@@ -1,0 +1,25 @@
+# Flask app to handle Twilio webhooks
+
+from autoflask import Flask, request, Response
+from twilio.twiml.voice_response import VoiceResponse, Dial
+
+app = Flask(__name__)
+
+sales_agent = ['sales_phone_number_here']
+
+@app.route("/handle-call", methods=['GET', 'POST'])
+def handle_call():
+    response = VoiceResponse()
+
+    # Check if the call is answered by a human
+    if 'AnsweredBy' in request.values and request.values['AnsweredBy'] == 'human':
+        # Forward the call to the sales agent's number
+        response.dial(sales_agent)  # Replace with the agent's phone number
+    else:
+        # If not answered by a human, you can handle accordingly
+        response.say("No answer or machine detected.")
+
+    return Response(str(response), mimetype="text/xml")
+
+if __name__ == "__main__":
+    app.run(debug=True)
